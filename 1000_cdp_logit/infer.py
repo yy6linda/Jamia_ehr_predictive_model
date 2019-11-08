@@ -29,8 +29,6 @@ class OmopParser(object):
         person = pd.read_csv('/infer/person.csv')
         person.drop_duplicates(inplace = True)
         person = person[['person_id']]
-        print(type(person.iloc[0,0]))
-        print(person.head(10))
         visit = visit[['person_id','visit_start_date']]
         visit.columns = ["person_id", "last_visit_date"]
         person = pd.merge(person, visit, on = ['person_id'], how = 'left')
@@ -57,14 +55,11 @@ class OmopParser(object):
         cdp.to_csv('/scratch/cdp_infer.csv', index = False)
         with open("/scratch/concept_list.txt", "rb") as fp:   # Unpickling
             concept_list = pickle.load(fp)
-        print(len(concept_list))
         reader_cdp = pd.read_csv('/scratch/cdp_infer.csv',chunksize = 100000)
         pivot_cdp = pd.DataFrame()
         count = 0
         for x in reader_cdp:
             x = x[x['concept_id'].isin(concept_list)]
-            print(x.head(10))
-            print()
             pivot_cdp_buffer = x.pivot_table(index = 'person_id',columns = 'concept_id',values = 'record')
             pivot_cdp_buffer.fillna(0,inplace = True)
             count = count + 1
@@ -90,19 +85,12 @@ class OmopParser(object):
         length = len(concept_list)
         predictors_all_zero = pd.DataFrame(np.zeros((1,length)))
         Y_predictors = clf.predict_proba(predictors_all_zero)[:,1]
-        print("Y_predictors")
-        print(type(Y_predictors))
-        print(Y_predictors[0])
-        print(type(Y_predictors[0]))
         Y_pred = clf.predict_proba(X)[:,1]
         output = pd.DataFrame(Y_pred,columns = ['score'])
         output_prob = pd.concat([person_id,output],axis = 1)
         person_id_left['score'] = Y_predictors[0]
         output_prob = pd.concat([output_prob,person_id_left],axis = 0)
         output_prob.drop_duplicates(subset = ['person_id'], keep = 'first',inplace = True)
-        print("output_prob.head(10)")
-        print(output_prob.head(10))
-        print(output_prob.shape[0])
         output_prob.to_csv('/output/predictions.csv')
 
 
