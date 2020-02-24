@@ -54,7 +54,7 @@ class OmopParser(object):
         visit_death.columns=['person_id','prediction_date']
         visit_death['death']=np.ones(visit_death.shape[0])
         print("print visit_death")
-        print(visit_death.head(10))
+        #print(visit_death.head(10))
         visit_live=visit[~visit.person_id.isin(visit_death.person_id)]
         visit_live=visit_live[['person_id','visit_start_date']]
         '''
@@ -120,7 +120,7 @@ class OmopParser(object):
         condition = pd.read_csv('/train/condition_occurrence.csv')
         condition_cancer = pd.merge(condition, cancer, on =['condition_concept_id'], how = 'inner')
         condition_cancer = condition_cancer.drop_duplicates(subset=['person_id'], keep='first')
-        print(condition_cancer.iloc[:,1:5].head(20))
+        #print(condition_cancer.iloc[:,1:5].head(20))
         print("#patients with cancer{} ".format(condition_cancer.shape[0]))
         person_prediction_demographic = pd.read_csv(file_name)
         print("#patients total{}".format(person_prediction_demographic.shape[0]))
@@ -129,18 +129,18 @@ class OmopParser(object):
         person_prediction_demographic.to_csv(file_name[0:-4] + '_cancer.csv',index=False)
 
 
-    def add_chd(self,file_name):
-        chd = pd.read_csv('/app/CHD_condition_id.csv')
-        chd['condition_concept_id'] = chd['concept_id'].apply(pd.to_numeric,errors='ignore',downcast='signed')
+    def add_hd(self,file_name):
+        hd = pd.read_csv('/app/HD_condition_id.csv')
+        hd['condition_concept_id'] = hd['concept_id'].apply(pd.to_numeric,errors='ignore',downcast='signed')
         condition = pd.read_csv('/train/condition_occurrence.csv')
-        condition_chd = chd.merge(condition, on =['condition_concept_id'], how = 'inner')
-        condition_chd= condition_chd.drop_duplicates(subset=['person_id'], keep='first')
-        print(condition_chd.iloc[:,1:5].head(20))
-        print("#patients with chd {} ".format(condition_chd.shape[0]))
+        condition_hd = hd.merge(condition, on =['condition_concept_id'], how = 'inner')
+        condition_hd= condition_hd.drop_duplicates(subset=['person_id'], keep='first')
+        #print(condition_hd.iloc[:,1:5].head(20))
+        print("#patients with hd {} ".format(condition_hd.shape[0]))
         person_prediction_demographic = pd.read_csv(file_name)
-        person_prediction_demographic['CHD'] = np.zeros(person_prediction_demographic.shape[0])
-        person_prediction_demographic.loc[person_prediction_demographic.person_id.isin(condition_chd.person_id),'CHD']=1
-        person_prediction_demographic.to_csv(file_name[0:-4] + '_CHD.csv',index=False)
+        person_prediction_demographic['HD'] = np.zeros(person_prediction_demographic.shape[0])
+        person_prediction_demographic.loc[person_prediction_demographic.person_id.isin(condition_hd.person_id),'HD']=1
+        person_prediction_demographic.to_csv(file_name[0:-4] + '_HD.csv',index=False)
 
     def add_copd(self,file_name):
         copd = pd.read_csv('/app/COPD_condition_id.csv')
@@ -148,7 +148,7 @@ class OmopParser(object):
         condition = pd.read_csv('/train/condition_occurrence.csv')
         condition_copd = copd.merge(condition, on =['condition_concept_id'], how = 'inner')
         condition_copd= condition_copd.drop_duplicates(subset=['person_id'], keep='first')
-        print(condition_copd.iloc[:,1:5].head(20))
+        #print(condition_copd.iloc[:,1:5].head(20))
         print("#patients with copd {} ".format(condition_copd.shape[0]))
         person_prediction_demographic = pd.read_csv(file_name)
         person_prediction_demographic['COPD'] = np.zeros(person_prediction_demographic.shape[0])
@@ -162,7 +162,7 @@ class OmopParser(object):
         condition_t2dm = t2dm.merge(condition, on =['condition_concept_id'], how = 'inner')
         condition_t2dm = condition_t2dm.drop_duplicates(subset=['person_id'], keep='first')
         print("#patients with t2dm {} ".format(condition_t2dm.shape[0]))
-        print(condition_t2dm.iloc[:,1:5].head(20),flush = True)
+        #print(condition_t2dm.iloc[:,1:5].head(20),flush = True)
         person_prediction_demographic = pd.read_csv(file_name)
         person_prediction_demographic['T2DM'] = np.zeros(person_prediction_demographic.shape[0])
         person_prediction_demographic.loc[person_prediction_demographic.person_id.isin(condition_t2dm.person_id),'T2DM']=1
@@ -174,7 +174,7 @@ class OmopParser(object):
         condition = pd.read_csv('/train/condition_occurrence.csv')
         condition_stroke = stroke.merge(condition, on =['condition_concept_id'], how = 'inner')
         condition_stroke= condition_stroke.drop_duplicates(subset=['person_id'], keep='first')
-        print(condition_stroke.iloc[:,1:5].head(20))
+        #print(condition_stroke.iloc[:,1:5].head(20))
         print("#patients with stroke {} ".format(condition_stroke.shape[0]))
         person_prediction_demographic = pd.read_csv(file_name)
         person_prediction_demographic['stroke'] = np.zeros(person_prediction_demographic.shape[0])
@@ -184,7 +184,7 @@ class OmopParser(object):
     def logit_model(self,file_name):
         data = pd.read_csv(file_name)
         print("logit_model, print data")
-        print(list(data.columns.values))
+        #print(list(data.columns.values))
         X = data.drop(['death','person_id'], axis = 1).fillna(0)
         features = X.columns.values
         Y = data[['death']].fillna(0)
@@ -197,7 +197,7 @@ class OmopParser(object):
 
 
 if __name__ == '__main__':
-    print("start baseline 4 training", flush = True)
+    print("start baseline 5 training", flush = True)
     FOLDER='scratch/'
     FILE_STR = 'train_cleaned'
     op = OmopParser()
@@ -205,10 +205,10 @@ if __name__ == '__main__':
     op.add_prediction_date(ROOT+ FOLDER + FILE_STR + '.csv')
     op.add_demographic_data(ROOT+ FOLDER + FILE_STR +'_prediction_date.csv')
     op.add_cancer(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data.csv')
-    op.add_chd(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data_cancer.csv')
-    op.add_copd(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data_cancer_CHD.csv')
-    op.add_t2dm(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data_cancer_CHD_COPD.csv')
-    op.add_stroke(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data_cancer_CHD_COPD_T2DM.csv')
+    op.add_hd(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data_cancer.csv')
+    op.add_copd(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data_cancer_HD.csv')
+    op.add_t2dm(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data_cancer_HD_COPD.csv')
+    op.add_stroke(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data_cancer_HD_COPD_T2DM.csv')
     print("finished adding the 5 types", flush = True)
-    op.logit_model(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data_cancer_CHD_COPD_T2DM_stroke.csv')
-    print("finished logit model for training", flush = Ture)
+    op.logit_model(ROOT +FOLDER+ FILE_STR+'_prediction_date_add_demographic_data_cancer_HD_COPD_T2DM_stroke.csv')
+    print("finished logit model for training", flush = True)

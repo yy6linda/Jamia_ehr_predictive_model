@@ -12,7 +12,7 @@ RUN pip install joblib
 
 RUN mkdir app
 
-COPY ./baseline_condition/CHD_condition_id.csv /app/
+COPY ./baseline_condition/HD_condition_id.csv /app/
 COPY ./baseline_condition/COPD_condition_id.csv /app/
 COPY ./baseline_condition/T2DM_condition_id.csv /app/
 COPY ./baseline_condition/cancer_condition_id.csv /app/

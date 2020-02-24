@@ -87,17 +87,17 @@ class OmopParser(object):
         person_prediction_demographic.to_csv(file_name[0:-4] + '_cancer.csv',index=False)
 
 
-    def add_chd(self,file_name):
-        chd = pd.read_csv('/app/CHD_condition_id.csv')
-        chd['condition_concept_id'] = chd['concept_id'].apply(pd.to_numeric,errors='ignore',downcast='signed')
+    def add_hd(self,file_name):
+        hd = pd.read_csv('/app/HD_condition_id.csv')
+        hd['condition_concept_id'] = hd['concept_id'].apply(pd.to_numeric,errors='ignore',downcast='signed')
         condition = pd.read_csv('/infer/condition_occurrence.csv')
-        condition_chd = pd.merge(chd, condition, on =['condition_concept_id'], how = 'inner')
-        condition_chd= condition_chd.drop_duplicates(subset=['person_id'], keep='first')
-        print("#patients with chd {} ".format(condition_chd.shape[0]))
+        condition_hd = pd.merge(hd, condition, on =['condition_concept_id'], how = 'inner')
+        condition_hd= condition_hd.drop_duplicates(subset=['person_id'], keep='first')
+        print("#patients with hd {} ".format(condition_hd.shape[0]))
         person_prediction_demographic = pd.read_csv(file_name)
-        person_prediction_demographic['CHD'] = np.zeros(person_prediction_demographic.shape[0])
-        person_prediction_demographic.loc[person_prediction_demographic.person_id.isin(condition_chd.person_id),'CHD']=1
-        person_prediction_demographic.to_csv(file_name[0:-4] + '_CHD.csv',index=False)
+        person_prediction_demographic['HD'] = np.zeros(person_prediction_demographic.shape[0])
+        person_prediction_demographic.loc[person_prediction_demographic.person_id.isin(condition_hd.person_id),'HD']=1
+        person_prediction_demographic.to_csv(file_name[0:-4] + '_HD.csv',index=False)
 
     def add_copd(self,file_name):
         copd = pd.read_csv('/app/COPD_condition_id.csv')
@@ -159,10 +159,10 @@ if __name__ == '__main__':
     print("add demographics", flush = True)
     op.add_demographic_data(ROOT+ FOLDER + FILE_STR + '.csv')
     op.add_cancer(ROOT +FOLDER+ FILE_STR+'_add_demographic_data.csv')
-    op.add_chd(ROOT +FOLDER+ FILE_STR+'_add_demographic_data_cancer.csv')
-    op.add_copd(ROOT +FOLDER+ FILE_STR+'_add_demographic_data_cancer_CHD.csv')
-    op.add_t2dm(ROOT +FOLDER+ FILE_STR+'_add_demographic_data_cancer_CHD_COPD.csv')
-    op.add_stroke(ROOT +FOLDER+ FILE_STR+'_add_demographic_data_cancer_CHD_COPD_T2DM.csv')
+    op.add_hd(ROOT +FOLDER+ FILE_STR+'_add_demographic_data_cancer.csv')
+    op.add_copd(ROOT +FOLDER+ FILE_STR+'_add_demographic_data_cancer_HD.csv')
+    op.add_t2dm(ROOT +FOLDER+ FILE_STR+'_add_demographic_data_cancer_HD_COPD.csv')
+    op.add_stroke(ROOT +FOLDER+ FILE_STR+'_add_demographic_data_cancer_HD_COPD_T2DM.csv')
     print("finish add 5 diseases", flush = True)
-    op.inference(ROOT +FOLDER+ FILE_STR+'_add_demographic_data_cancer_CHD_COPD_T2DM_stroke.csv')
+    op.inference(ROOT +FOLDER+ FILE_STR+'_add_demographic_data_cancer_HD_COPD_T2DM_stroke.csv')
     print("finish infer",flush = True)
